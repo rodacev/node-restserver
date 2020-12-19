@@ -6,21 +6,30 @@ const _ = require('underscore'); // _ por convencion
 
 const Usuario = require('../models/usuarioModel');
 
+const { verificaToken, verifica_adminRole } = require('../middlewares/autenticacion');
+
 const app = express();
 
 
 
-app.get('/usuario', (req, res) => {
-    //res.json('get usuario LOCAL');
+app.get('/usuario', verificaToken, (req, res) => {
+
+    //retornando los datos del usuario según su token verificado
+    // return res.json({
+    //     usuario: req.usuario,
+    //     nombre: req.usuario.nombre,
+    //     email: req.usuario.email
+    // })
+
 
     let desde = req.query.desde || 0;
     desde = Number(desde);
 
-    let limite = req.query.limite || 5;
+    let limite = req.query.limite || 100;
     limite = Number(limite);
 
     // filtrando solo los estado true
-    Usuario.find({ estado: true }, 'nombre email estado') // puedo filtrar por lo que quiero ver de cada documento
+    Usuario.find({ estado: true }, 'nombre email estado role') // puedo filtrar por lo que quiero ver de cada documento
         .skip(desde)
         .limit(limite) // paginar de a 5 registros
         .exec((err, usuarios) => {
@@ -45,7 +54,7 @@ app.get('/usuario', (req, res) => {
         })
 })
 
-app.post('/usuario', (req, res) => {
+app.post('/usuario', [verificaToken, verifica_adminRole], (req, res) => {
 
     let body = req.body;
 
@@ -75,7 +84,7 @@ app.post('/usuario', (req, res) => {
 
 })
 
-app.put('/usuario/:id', (req, res) => {
+app.put('/usuario/:id', [verificaToken, verifica_adminRole], (req, res) => {
 
     let id = req.params.id;
     // let body = req.body;
@@ -105,7 +114,7 @@ app.put('/usuario/:id', (req, res) => {
 
 })
 
-app.delete('/usuario/:id', (req, res) => {
+app.delete('/usuario/:id', [verificaToken, verifica_adminRole], (req, res) => {
     //res.json('delete usuario');
 
     let id = req.params.id;
