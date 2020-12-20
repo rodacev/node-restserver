@@ -26,6 +26,8 @@ let verificaToken = (req, res, next) => {
 
     console.log(token);
 
+    return token;
+
 };
 
 
